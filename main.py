@@ -1,31 +1,22 @@
 
+import cv2
 import pytesseract
 from PIL import Image, ImageFilter
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
 
-# Ruta de la imagen original
-imagen_ruta = 'img2.png'
+# Cargar la imagen
+imagen = cv2.imread('imagen_aumentada2.png')
 
-# Cargar la imagen original
-imagen_original = Image.open(imagen_ruta)
+# Aplicar un filtro de enfoque
+imagen_enfocada = cv2.GaussianBlur(imagen, (0, 0), 3)
+imagen_nitida = cv2.addWeighted(imagen, 1.5, imagen_enfocada, -0.5, 0)
 
-# Definir el factor de escala para aumentar la resolución
-factor_escala = 4  # Por ejemplo, duplicar la resolución
+cv2.imwrite('imagen_aumentada36.png', imagen_nitida)
 
-# Calcular las nuevas dimensiones de la imagen
-nuevo_ancho = imagen_original.width * factor_escala
-nuevo_alto = imagen_original.height * factor_escala
-
-# Aplicar la interpolación para aumentar la resolución
-imagen_aumentada = imagen_original.resize(
-    (nuevo_ancho, nuevo_alto), Image.LANCZOS)
-
-# Guardar la imagen aumentada en un nuevo archivo
-imagen_aumentada.save('imagen_aumentada3.png')
 
 # Ruta de la imagen a capturar
-imagen_ruta = 'imagen_aumentada3.png'
+imagen_ruta = 'imagen_aumentada36.png'
 print(imagen_ruta)
 # Capturar la imagen
 imagen = Image.open(imagen_ruta)
