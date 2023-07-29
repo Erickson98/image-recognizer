@@ -4,36 +4,43 @@ import pytesseract
 import keyboard
 import time
 import mouse
+import pyperclip
 from PIL import Image, ImageFilter, ImageGrab
 
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
 
-# Cargar la imagen
-imagen = cv2.imread('screenshot_windows_shift_s.png')
+def extract_text():
+    # Cargar la imagen
+    imagen = cv2.imread('screenshot_windows_shift_s.png')
 
-# Aplicar un filtro de enfoque
-imagen_enfocada = cv2.GaussianBlur(imagen, (0, 0), 3)
-imagen_nitida = cv2.addWeighted(imagen, 1.5, imagen_enfocada, -0.5, 0)
+    # Aplicar un filtro de enfoque
+    imagen_enfocada = cv2.GaussianBlur(imagen, (0, 0), 3)
+    imagen_nitida = cv2.addWeighted(imagen, 1.5, imagen_enfocada, -0.5, 0)
 
-cv2.imwrite('imagen_aumentada36.png', imagen_nitida)
+    cv2.imwrite('imagen_aumentada36.png', imagen_nitida)
+
+    # Ruta de la imagen a capturar
+    imagen_ruta = 'imagen_aumentada36.png'
+    print(imagen_ruta)
+    # Capturar la imagen
+    imagen = Image.open(imagen_ruta)
+    imagen_nitida = imagen.filter(ImageFilter.SHARPEN)
+    imagen_filtrada = imagen_nitida.filter(ImageFilter.MaxFilter)
+    # Extraer el texto de la imagen utilizando pytesseract
+    texto = pytesseract.image_to_string(
+        imagen, lang='eng', config='--psm 6 --oem 3')
+
+    # Imprimir el texto extraído
+
+    print(texto)
+    return texto
 
 
-# Ruta de la imagen a capturar
-imagen_ruta = 'imagen_aumentada36.png'
-print(imagen_ruta)
-# Capturar la imagen
-imagen = Image.open(imagen_ruta)
-imagen_nitida = imagen.filter(ImageFilter.SHARPEN)
-imagen_filtrada = imagen_nitida.filter(ImageFilter.MaxFilter)
-# Extraer el texto de la imagen utilizando pytesseract
-texto = pytesseract.image_to_string(
-    imagen, lang='eng', config='--psm 6 --oem 3')
-
-# Imprimir el texto extraído
-
-print(texto)
+def write_text_to_clipboard(text):
+    pyperclip.copy(text)
+    print("Text copied to clipboard.")
 
 
 def on_s_release():
@@ -64,7 +71,6 @@ def screenShootCheck():
 
 
 def capture_screenshot_windows_shift_s():
-    # Mantener el programa en ejecución hasta que la tecla "s" sea presionada y suelta
 
     while True:
         keyboard.add_hotkey('left windows+shift+f', capture_proccess)
@@ -74,10 +80,9 @@ def capture_screenshot_windows_shift_s():
         time.sleep(0.5)  # 1-1
         if not on_s_release():  # 2-1
             screenShootCheck()
-
+        write_text_to_clipboard(extract_text())
         time.sleep(1)
 
+
 # Capturar la screenshot
-
-
 capture_screenshot_windows_shift_s()
